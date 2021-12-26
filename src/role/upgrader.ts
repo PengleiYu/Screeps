@@ -12,9 +12,11 @@ const roleUpgrader = {
   switchWorkState(creep: Creep) {
     if (creep.memory.working && creep.store.energy === 0) {
       creep.memory.working = false;
+      creep.say("🔄 harvest");
     }
     if (!creep.memory.working && creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
       creep.memory.working = true;
+      creep.say("🚧 upgrade");
     }
   },
   upgrade(creep: Creep) {

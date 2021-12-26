@@ -2,12 +2,22 @@ import { moveToIfNotInRange } from "../utils/util";
 
 const roleHarvester = {
   run(creep: Creep) {
-    // creep容量未满则收获能量，否则转移能量
-    const isCreepNotFull = creep.store.getFreeCapacity() > 0;
-    if (isCreepNotFull) {
+    this.switchWorkState(creep);
+
+    if (creep.memory.working) {
       this.harvest(creep);
     } else {
       this.transfer(creep);
+    }
+  },
+  switchWorkState(creep: Creep) {
+    if (!creep.memory.working && creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+      creep.memory.working = true;
+      creep.say("🔄 harvest");
+    }
+    if (creep.memory.working && creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
+      creep.memory.working = false;
+      creep.say("🚧 transfer");
     }
   },
   harvest(creep: Creep) {
