@@ -1,5 +1,21 @@
 import { roleTower } from "./tower";
 
+const configOfHarvester: CreepSpawnConfig = {
+  role: "harvester",
+  minCount: 1,
+  body: [WORK, CARRY, MOVE]
+};
+const configOfUpgrader: CreepSpawnConfig = {
+  role: "upgrader",
+  minCount: 1,
+  body: [WORK, CARRY, MOVE]
+};
+const configOfBuilder: CreepSpawnConfig = {
+  role: "builder",
+  minCount: 3,
+  body: [WORK, CARRY, MOVE]
+};
+
 const roleRoom = {
   run(room: Room) {
     this.spawnCreeps(room);
@@ -16,23 +32,12 @@ const roleRoom = {
     }
   },
   spawnCreeps(room: Room) {
-    this.spawnEnoughHarvesterCreeps(room);
-  },
-  spawnEnoughHarvesterCreeps(room: Room) {
-    const harvesters = room.find(FIND_MY_CREEPS, {
-      filter: creep => creep.memory.role === "harvester"
-    });
-    console.log(`harvesters: ${harvesters.length}`);
-
-    const spawn = this.getDefaultSpawn();
-    if (harvesters.length < 1) {
-      const newName = "Harvester" + Game.time;
-      spawn.spawnCreep([WORK, CARRY, MOVE], newName, {
-        memory: {
-          role: "harvester"
-        }
-      });
+    const configArr = [configOfHarvester, configOfUpgrader, configOfBuilder];
+    for (const config of configArr) {
+      this.spawnEnoughCreeps(room, config);
     }
+  },
+  hintSpawning(spawn: StructureSpawn) {
     if (spawn.spawning) {
       const name = spawn.spawning.name;
       const spawningCreep = Game.creeps[name];
@@ -44,6 +49,28 @@ const roleRoom = {
         }
       );
     }
+  },
+  spawnEnoughCreeps(room: Room, spawnConfig: CreepSpawnConfig) {
+    const creepRole = spawnConfig.role;
+
+    const harvesters = room.find(FIND_MY_CREEPS, {
+      filter: creep => creep.memory.role === creepRole
+    });
+    console.log(`${creepRole}: current count=${harvesters.length}`);
+
+    const spawn = this.getDefaultSpawn();
+    if (harvesters.length >= spawnConfig.minCount
+      || spawn.spawning) {
+      return;
+    }
+    const newName = creepRole + Game.time;
+    console.log(`开始孵化：${creepRole} - ${newName}`);
+    spawn.spawnCreep(spawnConfig.body, newName, {
+      memory: {
+        role: creepRole
+      }
+    });
+    this.hintSpawning(spawn);
   },
   getDefaultSpawn() {
     const nameDefaultSpawn = "Spawn1";

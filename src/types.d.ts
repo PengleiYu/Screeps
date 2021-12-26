@@ -4,6 +4,12 @@ type ROLE_UPGRADER = "upgrader";
 type ROLE_BUILDER = "builder";
 declare type CreepRole = ROLE_HARVESTER | ROLE_UPGRADER | ROLE_BUILDER
 
+interface CreepSpawnConfig {
+  role: CreepRole,
+  minCount: number,
+  body: BodyPartConstant[]
+}
+
 // memory extension samples
 interface CreepMemory {
   role: CreepRole;
