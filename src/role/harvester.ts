@@ -1,5 +1,3 @@
-import { getDefaultSpawn } from "../utils";
-
 const roleHarvester = {
   run(creep: Creep) {
     // creep容量未满则收获能量，否则转移能量
@@ -31,13 +29,16 @@ const roleHarvester = {
   getTransferTarget(creep: Creep): Structure<any> {
     const targetList = creep.room.find(FIND_STRUCTURES, {
       filter(structure) {
-        const isEnergyStruct = structure.structureType === STRUCTURE_EXTENSION
-          || structure.structureType === STRUCTURE_SPAWN;
+        const isEnergyStruct =
+          structure.structureType === STRUCTURE_EXTENSION
+          || structure.structureType === STRUCTURE_SPAWN
+          || structure.structureType === STRUCTURE_TOWER;
         if (!isEnergyStruct) {
           return false;
         }
-        const it = structure as StructureSpawn | StructureExtension;
-        return it.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+
+        const store = (structure as any).store as Store<RESOURCE_ENERGY, false>;
+        return store.getFreeCapacity(RESOURCE_ENERGY) > 0;
       }
     });
 

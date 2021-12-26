@@ -12,7 +12,7 @@ const roleBuilder = {
     const sourcesList = creep.room.find(FIND_SOURCES);
     const target = sourcesList[0];
     if (!target) {
-      console.error("room没有source");
+      console.log("room没有source");
       return;
     }
     if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
@@ -23,7 +23,7 @@ const roleBuilder = {
     const deposits = creep.room.find(FIND_CONSTRUCTION_SITES);
     const target = deposits[0];
     if (!target) {
-      console.error("room没有deposit");
+      console.log("room没有deposit");
       return;
     }
     if (creep.build(target) === ERR_NOT_IN_RANGE) {

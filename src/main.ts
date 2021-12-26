@@ -9,7 +9,7 @@ function spawnEnoughHarvesterCreeps() {
   console.log(`harvesters: ${harvesters.length}`);
 
   const spawn = getDefaultSpawn();
-  if (harvesters.length < 2) {
+  if (harvesters.length < 1) {
     const newName = "Harvester" + Game.time;
     spawn.spawnCreep([WORK, CARRY, MOVE], newName, {
       memory: {

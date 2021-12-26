@@ -10,7 +10,7 @@ const roleUpgrader = {
   upgrade(creep: Creep) {
     const controller = creep.room.controller;
     if (!controller) {
-      console.error("room没有controller");
+      console.log("room没有controller");
       return;
     }
 
@@ -22,7 +22,7 @@ const roleUpgrader = {
     const sourcesList = creep.room.find(FIND_SOURCES);
     const sourceTarget = sourcesList[0];
     if (!sourceTarget) {
-      console.error("room没有source");
+      console.log("room没有source");
       return;
     }
 
