@@ -30,13 +30,29 @@ function spawnEnoughHarvesterCreeps() {
   }
 }
 
+function towerAttack() {
+  const tower: StructureTower | null = Game.getObjectById("133657a2080568fba448bf4d");
+  if (!tower) return;
+
+  const closestStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+    filter: (structure) => structure.hits < structure.hitsMax
+  });
+  if (closestStructure) {
+    tower.repair(closestStructure);
+  }
+
+  const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+  if (closestHostile) {
+    tower.attack(closestHostile);
+  }
+}
+
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
   console.log(`Current game tick is ${Game.time}`);
 
-  spawnEnoughHarvesterCreeps();
 
   // Automatically delete memory of missing creeps
   for (const name in Memory.creeps) {
@@ -44,6 +60,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
       delete Memory.creeps[name];
     }
   }
+  spawnEnoughHarvesterCreeps();
+  towerAttack();
 
 
   for (const name in Game.creeps) {
