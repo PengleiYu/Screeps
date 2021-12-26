@@ -1,10 +1,18 @@
 const roleUpgrader = {
   run(creep: Creep) {
-    const isNoEnergy = creep.store.energy === 0;
-    if (isNoEnergy) {
-      this.harvest(creep);
-    } else {
+    this.switchWorkState(creep);
+    if (creep.memory.working) {
       this.upgrade(creep);
+    } else {
+      this.harvest(creep);
+    }
+  },
+  switchWorkState(creep: Creep) {
+    if (creep.memory.working && creep.store.energy === 0) {
+      creep.memory.working = false;
+    }
+    if (!creep.memory.working && creep.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
+      creep.memory.working = true;
     }
   },
   upgrade(creep: Creep) {
