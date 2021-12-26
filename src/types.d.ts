@@ -7,10 +7,10 @@ declare type CreepRole = ROLE_HARVESTER | ROLE_UPGRADER | ROLE_BUILDER
 // memory extension samples
 interface CreepMemory {
   role: CreepRole;
-  room: string;
-  working: boolean;
+  room?: string;
+  working?: boolean;
   // todo 是否移动到单独的memory接口中
-  building: boolean;
+  building?: boolean;
 }
 
 interface Memory {

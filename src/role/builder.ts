@@ -40,8 +40,8 @@ const roleBuilder = {
       creep.say("🚧 build");
     }
   },
-  isInBuilding(creep: Creep) {
-    return creep.memory.building;
+  isInBuilding(creep: Creep): boolean {
+    return creep.memory.building ?? false;
   }
 };
 
