@@ -2,7 +2,7 @@ const roleBuilder = {
   run(creep: Creep) {
     this.switchBuilderState(creep);
 
-    if (this.isInBuilding(creep)) {
+    if (creep.memory.working) {
       this.build(creep);
     } else {
       this.harvest(creep);
@@ -20,8 +20,24 @@ const roleBuilder = {
     }
   },
   build(creep: Creep) {
-    const deposits = creep.room.find(FIND_CONSTRUCTION_SITES);
-    const target = deposits[0];
+    const lowPriorityTypes = [STRUCTURE_ROAD].map(it => it.toString());
+
+    function findHighPriorityDeposits() {
+      const deposits = creep.room.find(FIND_CONSTRUCTION_SITES, {
+        filter: site => !(lowPriorityTypes.includes(site.structureType))
+      });
+      return deposits[0];
+    }
+
+    function findLowPriorityDeposits() {
+      const deposits = creep.room.find(FIND_CONSTRUCTION_SITES, {
+        filter: site => lowPriorityTypes.includes(site.structureType)
+      });
+      return deposits[0];
+    }
+
+    const target = findHighPriorityDeposits() || findLowPriorityDeposits();
+
     if (!target) {
       console.log("room没有deposit");
       return;
@@ -31,18 +47,15 @@ const roleBuilder = {
     }
   },
   switchBuilderState(creep: Creep) {
-    if (this.isInBuilding(creep) && creep.store.energy === 0) {
-      creep.memory.building = false;
+    if (creep.memory.working && creep.store.energy === 0) {
+      creep.memory.working = false;
       creep.say("🔄 harvest");
     }
-    if (!this.isInBuilding(creep) && creep.store.getFreeCapacity() === 0) {
-      creep.memory.building = true;
+    if (!creep.memory.working && creep.store.getFreeCapacity() === 0) {
+      creep.memory.working = true;
       creep.say("🚧 build");
     }
   },
-  isInBuilding(creep: Creep): boolean {
-    return creep.memory.building ?? false;
-  }
 };
 
 export {
