@@ -1,3 +1,5 @@
+import { moveToIfNotInRange } from "utils/util";
+
 const roleUpgrader = {
   run(creep: Creep) {
     this.switchWorkState(creep);
@@ -22,9 +24,8 @@ const roleUpgrader = {
       return;
     }
 
-    if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
-      creep.moveTo(controller);
-    }
+    const result = creep.upgradeController(controller);
+    moveToIfNotInRange(creep, controller, result);
   },
   harvest(creep: Creep) {
     const sourcesList = creep.room.find(FIND_SOURCES);
@@ -34,9 +35,8 @@ const roleUpgrader = {
       return;
     }
 
-    if (creep.harvest(sourceTarget) === ERR_NOT_IN_RANGE) {
-      creep.moveTo(sourceTarget);
-    }
+    const result = creep.harvest(sourceTarget);
+    moveToIfNotInRange(creep, sourceTarget, result);
   }
 };
 

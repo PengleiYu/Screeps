@@ -1,3 +1,5 @@
+import { moveToIfNotInRange } from "../utils/util";
+
 const roleBuilder = {
   run(creep: Creep) {
     this.switchBuilderState(creep);
@@ -15,9 +17,8 @@ const roleBuilder = {
       console.log("room没有source");
       return;
     }
-    if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
-      creep.moveTo(target, { visualizePathStyle: { stroke: "#ffaa00" } });
-    }
+    const result = creep.harvest(target);
+    moveToIfNotInRange(creep, target, result);
   },
   build(creep: Creep) {
     const lowPriorityTypes = [STRUCTURE_ROAD].map(it => it.toString());
@@ -42,9 +43,8 @@ const roleBuilder = {
       console.log("room没有deposit");
       return;
     }
-    if (creep.build(target) === ERR_NOT_IN_RANGE) {
-      creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
-    }
+    const result = creep.build(target);
+    moveToIfNotInRange(creep, target, result);
   },
   switchBuilderState(creep: Creep) {
     if (creep.memory.working && creep.store.energy === 0) {
@@ -55,7 +55,7 @@ const roleBuilder = {
       creep.memory.working = true;
       creep.say("🚧 build");
     }
-  },
+  }
 };
 
 export {

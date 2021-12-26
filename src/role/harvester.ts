@@ -1,3 +1,5 @@
+import { moveToIfNotInRange } from "../utils/util";
+
 const roleHarvester = {
   run(creep: Creep) {
     // creep容量未满则收获能量，否则转移能量
@@ -11,9 +13,8 @@ const roleHarvester = {
   harvest(creep: Creep) {
     const sourceList = creep.room.find(FIND_SOURCES);
     const sourceTarget = sourceList[0];
-    if (creep.harvest(sourceTarget) === ERR_NOT_IN_RANGE) {// 尝试收获，不在距离内则移动过去
-      creep.moveTo(sourceTarget, { visualizePathStyle: { stroke: "#ffaa00" } });
-    }
+    const result = creep.harvest(sourceTarget);
+    moveToIfNotInRange(creep, sourceTarget, result);
   },
   transfer(creep: Creep) {
     const target = this.getTransferTarget(creep);
@@ -22,9 +23,8 @@ const roleHarvester = {
       return;
     }
 
-    if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {// 尝试转移，不在距离内则移动过去
-      creep.moveTo(target, { visualizePathStyle: { stroke: "#ffffff" } });
-    }
+    const result = creep.transfer(target, RESOURCE_ENERGY);
+    moveToIfNotInRange(creep, target, result);
   },
   getTransferTarget(creep: Creep): Structure<any> {
     const targetList = creep.room.find(FIND_STRUCTURES, {
