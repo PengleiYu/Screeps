@@ -1,4 +1,4 @@
-import { getDefaultSpawn } from "./utils";
+import { getDefaultSpawn } from "../utils";
 
 const roleHarvester = {
   run(harvester: Creep) {

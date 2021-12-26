@@ -1,6 +1,6 @@
 import { ErrorMapper } from "utils/ErrorMapper";
-import { roleHarvester } from "./harvester";
-import { roleUpgrader } from "./upgrader";
+import { roleHarvester } from "./role/harvester";
+import { roleUpgrader } from "./role/upgrader";
 
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
