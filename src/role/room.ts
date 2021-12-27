@@ -50,6 +50,21 @@ const roleRoom = {
       );
     }
   },
+  getRoleCount(room: Room, spawnConfig: CreepSpawnConfig) {
+    let creepCount;
+    const roomMemory = room.memory;
+    if (!roomMemory.roleCount) {
+      roomMemory.roleCount = {};
+    }
+    const roleCount = roomMemory.roleCount;
+    if (spawnConfig.role in roleCount) {
+      creepCount = roomMemory.roleCount[spawnConfig.role];
+    }
+    if (!creepCount) {
+      creepCount = spawnConfig.minCount;
+    }
+    return creepCount;
+  },
   spawnEnoughCreeps(room: Room, spawnConfig: CreepSpawnConfig) {
     const creepRole = spawnConfig.role;
 
@@ -59,8 +74,9 @@ const roleRoom = {
     console.log(`${creepRole}: current count=${harvesters.length}`);
 
     const spawn = this.getDefaultSpawn();
-    if (harvesters.length >= spawnConfig.minCount
-      || spawn.spawning) {
+    const creepCount = this.getRoleCount(room, spawnConfig);
+
+    if (harvesters.length >= creepCount || spawn.spawning) {
       return;
     }
     const newName = creepRole + Game.time;

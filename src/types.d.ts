@@ -1,7 +1,6 @@
 // example declaration file - remove these and add your own custom typings
 
 
-
 type ROLE_HARVESTER = "harvester";
 type ROLE_UPGRADER = "upgrader";
 type ROLE_BUILDER = "builder";
@@ -20,6 +19,10 @@ interface CreepMemory {
   working?: boolean;
   // todo 是否移动到单独的memory接口中
   building?: boolean;
+}
+
+interface RoomMemory {
+  roleCount: { [role: string]: number };
 }
 
 interface Memory {
