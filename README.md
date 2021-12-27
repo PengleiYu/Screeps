@@ -50,6 +50,19 @@ Maintaining the docs will also become a more community-focused effort, which mea
 
 To visit the docs, [click here](https://screepers.gitbook.io/screeps-typescript-starter/).
 
+## screeps-multimeter
+
+[multimeter文档](https://github.com/screepers/screeps-multimeter)
+
+### 使用
+`/watch console EXPR` 每个tick都在console中展示
+
+`/watch status EXPR` 每个tick都在statusBar中展示
+#### 常用法
+```shell
+/watch console "当前ticks="+Game.time
+```
+
 ## Contributing
 
 Issues, Pull Requests, and contribution to the docs are welcome! See our [Contributing Guidelines](CONTRIBUTING.md) for more details.

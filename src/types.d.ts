@@ -1,4 +1,7 @@
 // example declaration file - remove these and add your own custom typings
+
+
+
 type ROLE_HARVESTER = "harvester";
 type ROLE_UPGRADER = "upgrader";
 type ROLE_BUILDER = "builder";
