@@ -1,10 +1,10 @@
 import { ErrorMapper } from "utils/ErrorMapper";
 import { roleHarvester } from "./role/harvester";
-import { roleUpgrader } from "./role/upgrader";
 import { roleBuilder } from "./role/builder";
 import { roleRoom } from "./role/room";
 
 import { watcher } from "./watch-client";
+import { Upgrader } from "./role/roles";
 
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
@@ -32,7 +32,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
         roleHarvester.run(creep);
         break;
       case "upgrader":
-        roleUpgrader.run(creep);
+        new Upgrader(creep).run();
         break;
       case "builder":
         roleBuilder.run(creep);
