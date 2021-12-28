@@ -1,10 +1,8 @@
 import { ErrorMapper } from "utils/ErrorMapper";
-import { roleHarvester } from "./role/harvester";
-import { roleBuilder } from "./role/builder";
 import { roleRoom } from "./role/room";
 
 import { watcher } from "./watch-client";
-import { Upgrader } from "./role/roles";
+import { workerFactory } from "./role/creeps";
 
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
@@ -27,16 +25,6 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];
-    switch (creep.memory.role) {
-      case "harvester":
-        roleHarvester.run(creep);
-        break;
-      case "upgrader":
-        new Upgrader(creep).run();
-        break;
-      case "builder":
-        roleBuilder.run(creep);
-        break;
-    }
+    workerFactory(creep).run();
   }
 });

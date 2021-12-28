@@ -71,7 +71,7 @@ const roleRoom = {
     const harvesters = room.find(FIND_MY_CREEPS, {
       filter: creep => creep.memory.role === creepRole
     });
-    console.log(`${creepRole}: current count=${harvesters.length}`);
+    // console.log(`${creepRole}: current count=${harvesters.length}`);
 
     const spawn = this.getDefaultSpawn();
     const creepCount = this.getRoleCount(room, spawnConfig);
