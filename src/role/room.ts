@@ -1,4 +1,4 @@
-import { roleTower } from "./tower";
+import { TowerDecorator } from "./tower";
 
 const configOfHarvester: CreepSpawnConfig = {
   role: "harvester",
@@ -21,66 +21,46 @@ const configOfRepairer: CreepSpawnConfig = {
   body: [WORK, CARRY, MOVE]
 };
 
-const roleRoom = {
-  run(room: Room) {
-    this.spawnCreeps(room);
-    this.runTower(room);
-  },
-  runTower(room: Room) {
-    const towerList = room.find(FIND_MY_STRUCTURES, {
+class RoomDecorate {
+  private readonly room: Room;
+
+  constructor(room: Room) {
+    this.room = room;
+  }
+
+  public run() {
+    this.spawnCreeps();
+    this.runTower();
+  }
+
+  private runTower() {
+    const towerList = this.room.find(FIND_MY_STRUCTURES, {
       filter: structure => structure.structureType === STRUCTURE_TOWER
     });
     for (const element of towerList) {
       const tower = element as StructureTower;
-      roleTower.heal(tower);
-      roleTower.attack(tower);
+      const decorator = new TowerDecorator(tower);
+      decorator.run();
     }
-  },
-  spawnCreeps(room: Room) {
+  }
+
+  private spawnCreeps() {
     const configArr = [configOfHarvester, configOfUpgrader, configOfBuilder, configOfRepairer];
     for (const config of configArr) {
-      this.spawnEnoughCreeps(room, config);
+      this.spawnEnoughCreeps(config);
     }
-  },
-  hintSpawning(spawn: StructureSpawn) {
-    if (spawn.spawning) {
-      const name = spawn.spawning.name;
-      const spawningCreep = Game.creeps[name];
-      spawn.room.visual.text(
-        `🛠${spawningCreep.memory.role}`,
-        spawn.pos.x + 1, spawn.pos.y,
-        {
-          align: "left", opacity: 0.8
-        }
-      );
-      console.log(`${spawn.name}剩余能量:${(spawn.store.energy)}`);
-    }
-  },
-  getRoleCount(room: Room, spawnConfig: CreepSpawnConfig) {
-    let creepCount;
-    const roomMemory = room.memory;
-    if (!roomMemory.roleCount) {
-      roomMemory.roleCount = {};
-    }
-    const roleCount = roomMemory.roleCount;
-    if (spawnConfig.role in roleCount) {
-      creepCount = roomMemory.roleCount[spawnConfig.role];
-    }
-    if (!creepCount) {
-      creepCount = spawnConfig.minCount;
-    }
-    return creepCount;
-  },
-  spawnEnoughCreeps(room: Room, spawnConfig: CreepSpawnConfig) {
+  }
+
+  private spawnEnoughCreeps(spawnConfig: CreepSpawnConfig) {
     const creepRole = spawnConfig.role;
 
-    const harvesters = room.find(FIND_MY_CREEPS, {
+    const harvesters = this.room.find(FIND_MY_CREEPS, {
       filter: creep => creep.memory.role === creepRole
     });
     // console.log(`${creepRole}: current count=${harvesters.length}`);
 
     const spawn = this.getDefaultSpawn();
-    const creepCount = this.getRoleCount(room, spawnConfig);
+    const creepCount = this.getRoleCount(spawnConfig);
 
     if (harvesters.length >= creepCount || spawn.spawning) {
       return;
@@ -93,13 +73,45 @@ const roleRoom = {
     });
     console.log(`开始孵化：${creepRole} - ${newName}`);
     this.hintSpawning(spawn);
-  },
+  }
+
+  private hintSpawning(spawn: StructureSpawn) {
+    if (spawn.spawning) {
+      const name = spawn.spawning.name;
+      const spawningCreep = Game.creeps[name];
+      this.room.visual.text(
+        `🛠${spawningCreep.memory.role}`,
+        spawn.pos.x + 1, spawn.pos.y,
+        {
+          align: "left", opacity: 0.8
+        }
+      );
+      console.log(`${spawn.name}剩余能量:${(spawn.store.energy)}`);
+    }
+  }
+
+  private getRoleCount(spawnConfig: CreepSpawnConfig) {
+    let creepCount;
+    const roomMemory = this.room.memory;
+    if (!roomMemory.roleCount) {
+      roomMemory.roleCount = {};
+    }
+    const roleCount = roomMemory.roleCount;
+    if (spawnConfig.role in roleCount) {
+      creepCount = roomMemory.roleCount[spawnConfig.role];
+    }
+    if (!creepCount) {
+      creepCount = spawnConfig.minCount;
+    }
+    return creepCount;
+  }
+
   getDefaultSpawn() {
     const nameDefaultSpawn = "Spawn1";
     return Game.spawns[nameDefaultSpawn];
   }
-};
+}
 
 export {
-  roleRoom
+  RoomDecorate
 };
