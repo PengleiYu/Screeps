@@ -18,8 +18,6 @@ interface CreepMemory {
   role: CreepRole;
   room?: string;
   working?: boolean;
-  // todo 是否移动到单独的memory接口中
-  building?: boolean;
 }
 
 interface RoomMemory {
