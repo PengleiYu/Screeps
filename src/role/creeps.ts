@@ -22,10 +22,10 @@ abstract class TwoStateWorker {
   protected switchWorkState(): void {
     if (this.isInWorking() && this.isWorkResourceEmpty()) {
       this.changeWorkState(false);
-      this.say("停止工作去搜集资源");
+      this.say(`停止${this.getWorkType()}去收获`);
     } else if (!this.isInWorking() && this.isWorkResourceFull()) {
       this.changeWorkState(true);
-      this.say(`资源已满去${this.getWorkType()}`);
+      this.say(`收获完成去${this.getWorkType()}`);
     }
   }
 
@@ -59,12 +59,14 @@ abstract class TwoStateWorker {
 
   protected getWorkType(): string {
     switch (this.creep.memory.role) {
+      case "repairer":
+        return "修理";
       case "harvester":
-        return "store";
+        return "存储";
       case "upgrader":
-        return "upgrade";
+        return "升级";
       case "builder":
-        return "build";
+        return "建造";
     }
   }
 }
@@ -159,8 +161,33 @@ class Harvester extends TwoStateWorker {
   }
 }
 
+// tslint:disable-next-line:max-classes-per-file
+class Repairer extends TwoStateWorker {
+  constructor(creep: Creep) {
+    super(creep);
+  }
+
+  protected work(): void {
+    const target = this.findTarget();
+    if (!target) {
+      return;
+    }
+    const result = this.creep.repair(target);
+    moveToIfNotInRange(this.creep, target, result);
+  }
+
+  private findTarget(): Structure<any> {
+    const list = this.creep.room.find(FIND_STRUCTURES, {
+      filter: structure => structure.hits < structure.hitsMax
+    });
+    return list[0];
+  }
+}
+
 function workerFactory(creep: Creep): TwoStateWorker {
   switch (creep.memory.role) {
+    case "repairer":
+      return new Repairer(creep);
     case "harvester":
       return new Harvester(creep);
     case "upgrader":

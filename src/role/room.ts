@@ -15,6 +15,11 @@ const configOfBuilder: CreepSpawnConfig = {
   minCount: 3,
   body: [WORK, CARRY, MOVE]
 };
+const configOfRepairer: CreepSpawnConfig = {
+  role: "repairer",
+  minCount: 2,
+  body: [WORK, CARRY, MOVE]
+};
 
 const roleRoom = {
   run(room: Room) {
@@ -32,7 +37,7 @@ const roleRoom = {
     }
   },
   spawnCreeps(room: Room) {
-    const configArr = [configOfHarvester, configOfUpgrader, configOfBuilder];
+    const configArr = [configOfHarvester, configOfUpgrader, configOfBuilder, configOfRepairer];
     for (const config of configArr) {
       this.spawnEnoughCreeps(room, config);
     }
@@ -48,6 +53,7 @@ const roleRoom = {
           align: "left", opacity: 0.8
         }
       );
+      console.log(`${spawn.name}剩余能量:${(spawn.store.energy)}`);
     }
   },
   getRoleCount(room: Room, spawnConfig: CreepSpawnConfig) {
@@ -80,12 +86,12 @@ const roleRoom = {
       return;
     }
     const newName = creepRole + Game.time;
-    console.log(`开始孵化：${creepRole} - ${newName}`);
     spawn.spawnCreep(spawnConfig.body, newName, {
       memory: {
         role: creepRole
       }
     });
+    console.log(`开始孵化：${creepRole} - ${newName}`);
     this.hintSpawning(spawn);
   },
   getDefaultSpawn() {
