@@ -15,18 +15,23 @@ abstract class TwoStateWorker {
     if (this.isInWorking()) {
       this.work();
     } else {
-      this.harvest();
+      this.collectEnergy();
     }
   }
 
   protected switchWorkState(): void {
     if (this.isInWorking() && this.isWorkResourceEmpty()) {
       this.changeWorkState(false);
-      this.say(`停止${this.getWorkType()}去收获`);
+      this.say(`停止${this.getWorkType()}去搜集`);
     } else if (!this.isInWorking() && this.isWorkResourceFull()) {
       this.changeWorkState(true);
-      this.say(`收获完成去${this.getWorkType()}`);
+      this.say(`搜集完成去${this.getWorkType()}`);
     }
+  }
+
+  protected collectEnergy() {
+    if (this.withdrawEnergy()) return;
+    if (this.harvest()) return;
   }
 
   protected isWorkResourceFull(): boolean {
@@ -45,11 +50,35 @@ abstract class TwoStateWorker {
     this.creep.memory.working = working;
   }
 
-  protected harvest(): void {
-    const sourceList = this.creep.room.find(FIND_SOURCES);
-    const sourceTarget = sourceList[0];
-    const result = this.creep.harvest(sourceTarget);
-    moveToIfNotInRange(this.creep, sourceTarget, result);
+  protected harvest(): boolean {
+    const target = this.creep.pos.findClosestByRange(FIND_SOURCES);
+    if (!target) {
+      return false;
+    }
+    const result = this.creep.harvest(target);
+    moveToIfNotInRange(this.creep, target, result);
+    return true;
+  }
+
+  protected withdrawEnergy(): boolean {
+    const types = [
+      STRUCTURE_CONTAINER,
+      STRUCTURE_STORAGE
+    ].map(it => it.toString());
+    const target = this.creep.pos.findClosestByRange(FIND_STRUCTURES, {
+      filter: structure => {
+        const includes = types.includes(structure.structureType);
+        if (!includes) return;
+        const store = forceGetEnergyStore(structure);
+        return store.energy > 0;
+      }
+    });
+    if (!target) {
+      return false;
+    }
+    const result = this.creep.withdraw(target, RESOURCE_ENERGY);
+    moveToIfNotInRange(this.creep, target, result);
+    return true;
   }
 
   protected say(msg: string) {
@@ -130,36 +159,41 @@ class Harvester extends TwoStateWorker {
     super(creep);
   }
 
+  protected collectEnergy() {
+    this.harvest();
+  }
+
   protected work(): void {
-    const target = this.getEnergyStore(this.creep);
-    if (!target) {
-      // console.log("没有可转移的目标");
-      return;
-    }
+    const typesPriority1 = [
+      STRUCTURE_EXTENSION,
+      STRUCTURE_SPAWN
+    ];
+    const typesPriority2 = [
+      STRUCTURE_TOWER
+    ];
+    const typesPriority3 = [
+      STRUCTURE_CONTAINER
+    ];
+    let target = this.getClosetEnergyStore(typesPriority1);
+    if (!target) target = this.getClosetEnergyStore(typesPriority2);
+    if (!target) target = this.getClosetEnergyStore(typesPriority3);
+    if (!target) return;
 
     const result = this.creep.transfer(target, RESOURCE_ENERGY);
     moveToIfNotInRange(this.creep, target, result);
   }
 
-  private getEnergyStore(creep: Creep): Structure<any> {
-    const types = [
-      STRUCTURE_EXTENSION,
-      STRUCTURE_SPAWN,
-      STRUCTURE_CONTAINER,
-      STRUCTURE_TOWER
-    ].map(it => it.toString());
-
-    const targetList = creep.room.find(FIND_STRUCTURES, {
-      filter(structure) {
-        const isEnergyStruct = types.includes(structure.structureType);
-        if (!isEnergyStruct) return false;
+  private getClosetEnergyStore(structureTypes: string[]): Structure<any> | null {
+    const types = structureTypes.map(it => it.toString());
+    return this.creep.pos.findClosestByRange(FIND_STRUCTURES, {
+      filter: structure => {
+        const includes = types.includes(structure.structureType);
+        if (!includes) return false;
 
         const store = forceGetEnergyStore(structure);
         return store.getFreeCapacity(RESOURCE_ENERGY) > 0;
       }
     });
-
-    return targetList[0];
   }
 }
 
