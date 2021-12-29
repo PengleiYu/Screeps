@@ -27,6 +27,10 @@ export const loop = ErrorMapper.wrapLoop(() => {
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];
     const worker = workerFactory(creep);
+    if (!worker) {
+      console.log(`${creep.name} is null`);
+      continue;
+    }
     worker.run();
   }
 });

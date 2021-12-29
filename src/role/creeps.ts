@@ -215,7 +215,7 @@ class Repairer extends TwoStateWorker {
   }
 }
 
-function workerFactory(creep: Creep): TwoStateWorker {
+function workerFactory(creep: Creep): TwoStateWorker | null {
   switch (creep.memory.role) {
     case "repairer":
       return new Repairer(creep);
