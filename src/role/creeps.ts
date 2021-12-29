@@ -129,25 +129,21 @@ class Builder extends TwoStateWorker {
     const lowPriorityTypes = [STRUCTURE_ROAD].map(it => it.toString());
 
     function findHighPriorityDeposits(creep: Creep) {
-      const deposits = creep.room.find(FIND_CONSTRUCTION_SITES, {
+      return creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
         filter: site => !(lowPriorityTypes.includes(site.structureType))
       });
-      return deposits[0];
     }
 
     function findLowPriorityDeposits(creep: Creep) {
-      const deposits = creep.room.find(FIND_CONSTRUCTION_SITES, {
+      return creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES, {
         filter: site => lowPriorityTypes.includes(site.structureType)
       });
-      return deposits[0];
     }
 
     const target = findHighPriorityDeposits(this.creep) || findLowPriorityDeposits(this.creep);
 
-    if (!target) {
-      console.log("room没有deposit");
+    if (!target) return;
 
-    }
     const result = this.creep.build(target);
     moveToIfNotInRange(this.creep, target, result);
   }
@@ -212,11 +208,10 @@ class Repairer extends TwoStateWorker {
     moveToIfNotInRange(this.creep, target, result);
   }
 
-  private findTarget(): Structure<any> {
-    const list = this.creep.room.find(FIND_STRUCTURES, {
+  private findTarget(): Structure<any> | null {
+    return this.creep.pos.findClosestByRange(FIND_STRUCTURES, {
       filter: structure => structure.hits < structure.hitsMax
     });
-    return list[0];
   }
 }
 
