@@ -1,4 +1,4 @@
-import { moveToIfNotInRange } from "../utils/util";
+import { forceGetEnergyStore, moveToIfNotInRange } from "../utils/util";
 
 abstract class TwoStateWorker {
   protected readonly creep: Creep;
@@ -142,17 +142,19 @@ class Harvester extends TwoStateWorker {
   }
 
   private getEnergyStore(creep: Creep): Structure<any> {
+    const types = [
+      STRUCTURE_EXTENSION,
+      STRUCTURE_SPAWN,
+      STRUCTURE_CONTAINER,
+      STRUCTURE_TOWER
+    ].map(it => it.toString());
+
     const targetList = creep.room.find(FIND_STRUCTURES, {
       filter(structure) {
-        const isEnergyStruct =
-          structure.structureType === STRUCTURE_EXTENSION
-          || structure.structureType === STRUCTURE_SPAWN
-          || structure.structureType === STRUCTURE_TOWER;
-        if (!isEnergyStruct) {
-          return false;
-        }
+        const isEnergyStruct = types.includes(structure.structureType);
+        if (!isEnergyStruct) return false;
 
-        const store = (structure as any).store as Store<RESOURCE_ENERGY, false>;
+        const store = forceGetEnergyStore(structure);
         return store.getFreeCapacity(RESOURCE_ENERGY) > 0;
       }
     });

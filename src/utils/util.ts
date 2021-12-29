@@ -9,6 +9,10 @@ function moveToIfNotInRange(creep: Creep, target: { pos: RoomPosition }, returnC
   }
 }
 
+function forceGetEnergyStore(structure: Structure): Store<RESOURCE_ENERGY, any> {
+  return (structure as any).store;
+}
+
 export {
-  moveToIfNotInRange
+  moveToIfNotInRange, forceGetEnergyStore
 };
