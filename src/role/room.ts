@@ -20,6 +20,11 @@ const configOfRepairer: CreepSpawnConfig = {
   minCount: 2,
   body: [WORK, CARRY, MOVE]
 };
+const configOfTransferer: CreepSpawnConfig = {
+  role: "transferer"
+  , minCount: 1,
+  body: [CARRY, CARRY, CARRY, MOVE]
+};
 
 class RoomDecorate {
   private readonly room: Room;
@@ -45,7 +50,7 @@ class RoomDecorate {
   }
 
   private spawnCreeps() {
-    const configArr = [configOfHarvester, configOfUpgrader, configOfBuilder, configOfRepairer];
+    const configArr = [configOfHarvester, configOfUpgrader, configOfBuilder, configOfRepairer, configOfTransferer];
     for (const config of configArr) {
       this.spawnEnoughCreeps(config);
     }

@@ -5,7 +5,8 @@ type ROLE_HARVESTER = "harvester";
 type ROLE_UPGRADER = "upgrader";
 type ROLE_BUILDER = "builder";
 type ROLE_REPAIRER = "repairer"
-declare type CreepRole = ROLE_HARVESTER | ROLE_UPGRADER | ROLE_BUILDER | ROLE_REPAIRER
+type ROLE_TRANSFERER = "transferer"
+declare type CreepRole = ROLE_HARVESTER | ROLE_UPGRADER | ROLE_BUILDER | ROLE_REPAIRER | ROLE_TRANSFERER
 
 interface CreepSpawnConfig {
   role: CreepRole,

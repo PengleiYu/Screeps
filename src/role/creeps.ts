@@ -1,4 +1,4 @@
-import { forceGetEnergyStore, moveToIfNotInRange } from "../utils/util";
+import { findStorableStructByRange, forceGetEnergyStore, moveToIfNotInRange } from "../utils/util";
 
 abstract class TwoStateWorker {
   protected readonly creep: Creep;
@@ -60,19 +60,29 @@ abstract class TwoStateWorker {
     return true;
   }
 
-  protected withdrawEnergy(): boolean {
-    const types = [
-      STRUCTURE_CONTAINER,
-      STRUCTURE_STORAGE
-    ].map(it => it.toString());
-    const target = this.creep.pos.findClosestByRange(FIND_STRUCTURES, {
-      filter: structure => {
-        const includes = types.includes(structure.structureType);
-        if (!includes) return;
-        const store = forceGetEnergyStore(structure);
-        return store.energy > 0;
-      }
-    });
+  protected withdrawEnergy(storageFist: boolean = true): boolean {
+    let types = [STRUCTURE_STORAGE, STRUCTURE_CONTAINER];
+    if (!storageFist) types = types.reverse();
+    const pos = this.creep.pos;
+
+    function getTarget(storeTypes: string[]) {
+      return pos.findClosestByRange(FIND_STRUCTURES, {
+        filter: structure => {
+          const includes = storeTypes.includes(structure.structureType);
+          if (!includes) return;
+          const store = forceGetEnergyStore(structure);
+          return store.energy > 0;
+        }
+      });
+    }
+
+    let target;
+    if (!target) {
+      target = getTarget(types.slice(0, 1));
+    }
+    if (!target) {
+      target = getTarget(types.slice(1, 2));
+    }
     if (!target) {
       return false;
     }
@@ -88,6 +98,8 @@ abstract class TwoStateWorker {
 
   protected getWorkType(): string {
     switch (this.creep.memory.role) {
+      case "transferer":
+        return "运输";
       case "repairer":
         return "修理";
       case "harvester":
@@ -160,19 +172,7 @@ class Harvester extends TwoStateWorker {
   }
 
   protected work(): void {
-    const typesPriority1 = [
-      STRUCTURE_EXTENSION,
-      STRUCTURE_SPAWN
-    ];
-    const typesPriority2 = [
-      STRUCTURE_TOWER
-    ];
-    const typesPriority3 = [
-      STRUCTURE_CONTAINER
-    ];
-    let target = this.getClosetEnergyStore(typesPriority1);
-    if (!target) target = this.getClosetEnergyStore(typesPriority2);
-    if (!target) target = this.getClosetEnergyStore(typesPriority3);
+    const target = this.getClosetEnergyStore([STRUCTURE_CONTAINER]);
     if (!target) return;
 
     const result = this.creep.transfer(target, RESOURCE_ENERGY);
@@ -215,8 +215,47 @@ class Repairer extends TwoStateWorker {
   }
 }
 
+// tslint:disable-next-line:max-classes-per-file
+class Transferor extends TwoStateWorker {
+  constructor(creep: Creep) {
+    super(creep);
+  }
+
+  protected collectEnergy() {
+    super.withdrawEnergy(false);
+  }
+
+  protected work(): void {
+    const target = this.getTransferTarget();
+    if (!target) return;
+
+    const result = this.creep.transfer(target, RESOURCE_ENERGY);
+    moveToIfNotInRange(this.creep, target, result);
+  }
+
+  private getTransferTarget(): Structure<any> | null {
+    const position = this.creep.pos;
+
+    const spawnTypes = [STRUCTURE_SPAWN, STRUCTURE_EXTENSION];
+    let target = findStorableStructByRange(position, spawnTypes);
+    if (target) return target;
+
+    const customerTypes = [STRUCTURE_TOWER];
+    target = findStorableStructByRange(position, customerTypes);
+    if (target) return target;
+
+    const storageTypes = [STRUCTURE_STORAGE];
+    target = findStorableStructByRange(position, storageTypes);
+    if (target) return target;
+
+    return null;
+  }
+}
+
 function workerFactory(creep: Creep): TwoStateWorker | null {
   switch (creep.memory.role) {
+    case "transferer":
+      return new Transferor(creep);
     case "repairer":
       return new Repairer(creep);
     case "harvester":
