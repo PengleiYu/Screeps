@@ -54,7 +54,7 @@ class RoomDecorate {
   private spawnEnoughCreeps(spawnConfig: CreepSpawnConfig) {
     const creepRole = spawnConfig.role;
 
-    const harvesters = this.room.find(FIND_MY_CREEPS, {
+    const creeps = this.room.find(FIND_MY_CREEPS, {
       filter: creep => creep.memory.role === creepRole
     });
     // console.log(`${creepRole}: current count=${harvesters.length}`);
@@ -62,16 +62,17 @@ class RoomDecorate {
     const spawn = this.getDefaultSpawn();
     const creepCount = this.getRoleCount(spawnConfig);
 
-    if (harvesters.length >= creepCount || spawn.spawning) {
+    if (creeps.length >= creepCount || spawn.spawning) {
       return;
     }
     const newName = creepRole + Game.time;
-    spawn.spawnCreep(spawnConfig.body, newName, {
+    console.log(`${creepRole} 当前数量=${creeps.length},期望数量=${creepCount},开始孵化:${newName}`);
+    const result = spawn.spawnCreep(spawnConfig.body, newName, {
       memory: {
         role: creepRole
       }
     });
-    console.log(`开始孵化：${creepRole} - ${newName}`);
+    console.log(`孵化结果=${result}`);
     this.hintSpawning(spawn);
   }
 
@@ -100,10 +101,8 @@ class RoomDecorate {
     if (spawnConfig.role in roleCount) {
       creepCount = roomMemory.roleCount[spawnConfig.role];
     }
-    if (!creepCount) {
-      creepCount = spawnConfig.minCount;
-    }
-    return creepCount;
+
+    return creepCount ?? spawnConfig.minCount;
   }
 
   getDefaultSpawn() {
