@@ -1,4 +1,5 @@
 import { findStorableStructByRange, forceGetEnergyStore, moveToIfNotInRange } from "../utils/util";
+import { flatten } from "lodash";
 
 abstract class TwoStateWorker {
   protected readonly creep: Creep;
@@ -240,8 +241,19 @@ class Transferor extends TwoStateWorker {
     let target = findStorableStructByRange(position, spawnTypes);
     if (target) return target;
 
-    const customerTypes = [STRUCTURE_TOWER];
-    target = findStorableStructByRange(position, customerTypes);
+    const customerTypes = [STRUCTURE_TOWER].map(it => it.toString());
+    target = position.findClosestByRange(FIND_STRUCTURES, {
+      filter: struct => {
+        const includes = customerTypes.includes(struct.structureType);
+        if (!includes) return false;
+
+        const store = forceGetEnergyStore(struct);
+        const threshold = (store.getCapacity(RESOURCE_ENERGY) ?? 0) / 2;
+        const freeCapacity = store.getFreeCapacity(RESOURCE_ENERGY);
+        // console.log(`free=${freeCapacity}, threshold=${threshold}`);
+        return freeCapacity > threshold * 0.5;
+      }
+    });
     if (target) return target;
 
     const storageTypes = [STRUCTURE_STORAGE];
