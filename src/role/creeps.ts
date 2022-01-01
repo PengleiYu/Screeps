@@ -3,6 +3,7 @@ import { flatten } from "lodash";
 
 abstract class TwoStateWorker {
   protected readonly creep: Creep;
+  protected silent: boolean = false;
 
   protected constructor(creep: Creep) {
     this.creep = creep;
@@ -23,10 +24,10 @@ abstract class TwoStateWorker {
   protected switchWorkState(): void {
     if (this.isInWorking() && this.isWorkResourceEmpty()) {
       this.changeWorkState(false);
-      this.say(`停止${this.getWorkType()}去搜集`);
+      if (!this.silent) this.say(`停止${this.getWorkType()}去搜集`);
     } else if (!this.isInWorking() && this.isWorkResourceFull()) {
       this.changeWorkState(true);
-      this.say(`搜集完成去${this.getWorkType()}`);
+      if (!this.silent) this.say(`搜集完成去${this.getWorkType()}`);
     }
   }
 
@@ -166,6 +167,7 @@ class Builder extends TwoStateWorker {
 class Harvester extends TwoStateWorker {
   constructor(creep: Creep) {
     super(creep);
+    super.silent = true;
   }
 
   protected collectEnergy() {
