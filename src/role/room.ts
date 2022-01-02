@@ -3,7 +3,7 @@ import { TowerDecorator } from "./tower";
 const configOfHarvester: CreepSpawnConfig = {
   role: "harvester",
   minCount: 1,
-  body: [WORK, CARRY, MOVE]
+  body: [WORK, WORK, CARRY, MOVE]
 };
 const configOfUpgrader: CreepSpawnConfig = {
   role: "upgrader",
